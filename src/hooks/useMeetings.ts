@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import type { Meeting, CreateMeetingData } from "@/types/meetings";
 
 export function useMeetings() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,6 +13,7 @@ export function useMeetings() {
     if (!user) return;
     setLoading(true);
     try {
+      // RLS handles filtering, but we can refine the query per role
       const { data, error } = await supabase
         .from("meetings")
         .select("*")
@@ -112,4 +113,32 @@ export function useUpcomingMeetings(limit = 5) {
     .slice(0, limit);
 
   return { upcoming, loading };
+}
+
+export function useAllMeetings() {
+  const { meetings, loading } = useMeetings();
+  return { meetings, loading };
+}
+
+export function useProfiles() {
+  const [profiles, setProfiles] = useState<Array<{ id: string; full_name: string | null; email: string }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetch() {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .eq("status", "active")
+        .order("full_name", { ascending: true });
+
+      if (!error && data) {
+        setProfiles(data);
+      }
+      setLoading(false);
+    }
+    fetch();
+  }, []);
+
+  return { profiles, loading };
 }

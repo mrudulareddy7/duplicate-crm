@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
+import { FloatingScheduleButton } from "@/components/meetings/FloatingScheduleButton";
 
 export function AppLayout() {
   return (
@@ -14,6 +15,7 @@ export function AppLayout() {
             <Outlet />
           </main>
         </SidebarInset>
+        <FloatingScheduleButton />
       </div>
     </SidebarProvider>
   );

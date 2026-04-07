@@ -9,6 +9,7 @@ import { TaskList } from "@/components/tasks/TaskList";
 import { Link } from "react-router-dom";
 import { Users, Briefcase, TrendingUp, Target, Plus, AlertTriangle, ArrowRight } from "lucide-react";
 import { UpcomingMeetingsWidget } from "@/components/meetings/UpcomingMeetingsWidget";
+import { AllMeetingsTable } from "@/components/meetings/AllMeetingsTable";
 
 export default function Dashboard() {
   const { profile, role } = useAuth();

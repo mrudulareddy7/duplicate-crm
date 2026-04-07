@@ -5,19 +5,37 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarPlus, Clock, MapPin, Video } from "lucide-react";
 import { useUpcomingMeetings } from "@/hooks/useMeetings";
 import { ScheduleMeetingDialog } from "./ScheduleMeetingDialog";
+import { useAuth } from "@/contexts/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
 
 export function UpcomingMeetingsWidget() {
   const { upcoming, loading } = useUpcomingMeetings(5);
+  const { role } = useAuth();
+
+  const canCreate = role === "manager" || role === "admin";
+
+  const title =
+    role === "admin"
+      ? "All Upcoming Meetings"
+      : role === "manager"
+        ? "My Upcoming Meetings"
+        : "My Meetings";
+
+  const description =
+    role === "admin"
+      ? "All scheduled meetings across the organization"
+      : role === "manager"
+        ? "Meetings you've created"
+        : "Meetings assigned to you";
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Upcoming Meetings</CardTitle>
-          <CardDescription>Your next scheduled meetings</CardDescription>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
         </div>
-        <ScheduleMeetingDialog />
+        {canCreate && <ScheduleMeetingDialog />}
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -53,6 +71,11 @@ export function UpcomingMeetingsWidget() {
                       </span>
                     )}
                   </div>
+                  {meeting.description && (
+                    <p className="text-xs text-muted-foreground line-clamp-1">
+                      {meeting.description}
+                    </p>
+                  )}
                   {meeting.attendees?.length > 0 && (
                     <p className="text-xs text-muted-foreground truncate">
                       {meeting.attendees.length} attendee{meeting.attendees.length > 1 ? "s" : ""}
@@ -69,14 +92,16 @@ export function UpcomingMeetingsWidget() {
           <div className="flex h-32 items-center justify-center text-muted-foreground">
             <div className="text-center space-y-2">
               <p>No upcoming meetings</p>
-              <ScheduleMeetingDialog
-                trigger={
-                  <Button variant="outline" size="sm">
-                    <CalendarPlus className="mr-2 h-4 w-4" />
-                    Schedule one
-                  </Button>
-                }
-              />
+              {canCreate && (
+                <ScheduleMeetingDialog
+                  trigger={
+                    <Button variant="outline" size="sm">
+                      <CalendarPlus className="mr-2 h-4 w-4" />
+                      Schedule one
+                    </Button>
+                  }
+                />
+              )}
             </div>
           </div>
         )}

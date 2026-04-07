@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarPlus } from "lucide-react";
-import { useMeetings } from "@/hooks/useMeetings";
+import { useMeetings, useProfiles } from "@/hooks/useMeetings";
 
 interface ScheduleMeetingDialogProps {
   trigger?: React.ReactNode;
@@ -29,6 +31,7 @@ export function ScheduleMeetingDialog({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { createMeeting } = useMeetings();
+  const { profiles } = useProfiles();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -36,14 +39,22 @@ export function ScheduleMeetingDialog({
     date: "",
     startTime: "",
     duration: "30",
-    attendees: "",
     location: "",
   });
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  function toggleUser(userId: string) {
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -61,9 +72,7 @@ export function ScheduleMeetingDialog({
       start_time: startDateTime.toISOString(),
       end_time: endDateTime.toISOString(),
       duration_minutes: parseInt(formData.duration),
-      attendees: formData.attendees
-        ? formData.attendees.split(",").map((a) => a.trim())
-        : [],
+      attendees: selectedUsers,
       location: formData.location || undefined,
       lead_id: leadId,
       contact_id: contactId,
@@ -76,9 +85,9 @@ export function ScheduleMeetingDialog({
       date: "",
       startTime: "",
       duration: "30",
-      attendees: "",
       location: "",
     });
+    setSelectedUsers([]);
     setLoading(false);
     setOpen(false);
   }
@@ -93,7 +102,7 @@ export function ScheduleMeetingDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Schedule Meeting</DialogTitle>
         </DialogHeader>
@@ -148,15 +157,39 @@ export function ScheduleMeetingDialog({
             />
           </div>
 
+          {/* User Assignment */}
           <div className="space-y-2">
-            <Label htmlFor="attendees">Attendees (comma-separated emails)</Label>
-            <Input
-              id="attendees"
-              name="attendees"
-              value={formData.attendees}
-              onChange={handleChange}
-              placeholder="user@example.com, other@example.com"
-            />
+            <Label>Assign Users</Label>
+            <ScrollArea className="h-32 rounded-md border p-2">
+              {profiles.length > 0 ? (
+                profiles.map((p) => (
+                  <label
+                    key={p.id}
+                    className="flex items-center gap-2 py-1.5 px-1 rounded hover:bg-muted cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={selectedUsers.includes(p.id)}
+                      onCheckedChange={() => toggleUser(p.id)}
+                    />
+                    <span className="text-sm truncate">
+                      {p.full_name || p.email}
+                    </span>
+                    {p.full_name && (
+                      <span className="text-xs text-muted-foreground truncate">
+                        {p.email}
+                      </span>
+                    )}
+                  </label>
+                ))
+              ) : (
+                <p className="text-xs text-muted-foreground py-2">No users found</p>
+              )}
+            </ScrollArea>
+            {selectedUsers.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {selectedUsers.length} user{selectedUsers.length > 1 ? "s" : ""} selected
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

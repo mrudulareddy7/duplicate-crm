@@ -9,6 +9,7 @@ import { TaskList } from "@/components/tasks/TaskList";
 import { Link } from "react-router-dom";
 import { Users, Briefcase, TrendingUp, Target, Plus, AlertTriangle, ArrowRight } from "lucide-react";
 import { UpcomingMeetingsWidget } from "@/components/meetings/UpcomingMeetingsWidget";
+import { AllMeetingsTable } from "@/components/meetings/AllMeetingsTable";
 
 export default function Dashboard() {
   const { profile, role } = useAuth();
@@ -119,8 +120,11 @@ export default function Dashboard() {
         </Card>
       )}
 
-      {/* Upcoming Meetings */}
+      {/* Upcoming Meetings (role-aware) */}
       <UpcomingMeetingsWidget />
+
+      {/* Admin: All Meetings Table */}
+      <AllMeetingsTable />
 
       {/* Main Content Area */}
       <div className="grid gap-6 lg:grid-cols-2">

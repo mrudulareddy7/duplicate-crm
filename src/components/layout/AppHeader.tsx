@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, Settings, User } from "lucide-react";
+import { MeetingNotificationBell } from "@/components/meetings/MeetingNotificationBell";
 
 export function AppHeader() {
   const { profile, signOut } = useAuth();
@@ -37,6 +38,9 @@ export function AppHeader() {
       <SidebarTrigger />
 
       <div className="flex-1" />
+
+      {/* Meeting Notifications */}
+      <MeetingNotificationBell />
 
       {/* User Menu */}
       <DropdownMenu>

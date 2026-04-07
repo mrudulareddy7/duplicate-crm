@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Link } from "react-router-dom";
 import { Users, Briefcase, TrendingUp, Target, Plus, AlertTriangle, ArrowRight } from "lucide-react";
+import { UpcomingMeetingsWidget } from "@/components/meetings/UpcomingMeetingsWidget";
 
 export default function Dashboard() {
   const { profile, role } = useAuth();
@@ -117,6 +118,9 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       )}
+
+      {/* Upcoming Meetings */}
+      <UpcomingMeetingsWidget />
 
       {/* Main Content Area */}
       <div className="grid gap-6 lg:grid-cols-2">

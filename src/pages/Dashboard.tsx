@@ -120,8 +120,11 @@ export default function Dashboard() {
         </Card>
       )}
 
-      {/* Upcoming Meetings */}
+      {/* Upcoming Meetings (role-aware) */}
       <UpcomingMeetingsWidget />
+
+      {/* Admin: All Meetings Table */}
+      <AllMeetingsTable />
 
       {/* Main Content Area */}
       <div className="grid gap-6 lg:grid-cols-2">

@@ -691,6 +691,97 @@ export type Database = {
           },
         ]
       }
+      meetings: {
+        Row: {
+          attendees: string[] | null
+          contact_id: string | null
+          created_at: string
+          created_by: string
+          deal_id: string | null
+          description: string | null
+          duration_minutes: number | null
+          end_time: string
+          google_calendar_synced: boolean | null
+          google_event_id: string | null
+          id: string
+          lead_id: string | null
+          location: string | null
+          meeting_link: string | null
+          owner_id: string
+          reminder_sent: boolean | null
+          start_time: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attendees?: string[] | null
+          contact_id?: string | null
+          created_at?: string
+          created_by: string
+          deal_id?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          end_time: string
+          google_calendar_synced?: boolean | null
+          google_event_id?: string | null
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          meeting_link?: string | null
+          owner_id: string
+          reminder_sent?: boolean | null
+          start_time: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attendees?: string[] | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string
+          deal_id?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          end_time?: string
+          google_calendar_synced?: boolean | null
+          google_event_id?: string | null
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          meeting_link?: string | null
+          owner_id?: string
+          reminder_sent?: boolean | null
+          start_time?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notes: {
         Row: {
           contact_id: string | null

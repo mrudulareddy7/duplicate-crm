@@ -49,6 +49,28 @@ export function useLeads() {
       inquiry_date?: string;
       notes?: string;
     }) => {
+      // Duplicate detection: check for existing lead with same email or phone
+      const filters = [];
+      if (lead.email) {
+        filters.push(`email.ilike.${lead.email}`);
+      }
+      if (lead.phone) {
+        filters.push(`phone.eq.${lead.phone}`);
+      }
+
+      if (filters.length > 0) {
+        const { data: duplicates, error: dupError } = await supabase
+          .from("leads")
+          .select("id")
+          .or(filters.join(","))
+          .limit(1);
+
+        if (dupError) throw dupError;
+        if (duplicates && duplicates.length > 0) {
+          throw new Error("Lead already exists");
+        }
+      }
+
       const { data, error } = await supabase
         .from("leads")
         .insert([{

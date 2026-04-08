@@ -72,8 +72,12 @@ export function CreateLeadDialog({ open, onOpenChange }: CreateLeadDialogProps) 
       toast.success("Lead created successfully");
       form.reset();
       onOpenChange(false);
-    } catch (error) {
-      toast.error("Failed to create lead");
+    } catch (error: any) {
+      if (error?.message === "Lead already exists") {
+        toast.error("Lead already exists");
+      } else {
+        toast.error("Failed to create lead");
+      }
     }
   }
 

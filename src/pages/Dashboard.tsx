@@ -207,12 +207,14 @@ export default function Dashboard() {
                 Add New Contact
               </Button>
             </Link>
-            <Link to="/deals">
-              <Button variant="outline" className="w-full justify-start">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Deal
-              </Button>
-            </Link>
+            {role !== "admin" && (
+              <Link to="/deals">
+                <Button variant="outline" className="w-full justify-start">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Deal
+                </Button>
+              </Link>
+            )}
             <Link to="/tasks">
               <Button variant="outline" className="w-full justify-start">
                 <Plus className="mr-2 h-4 w-4" />

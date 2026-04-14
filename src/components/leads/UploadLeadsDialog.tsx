@@ -62,20 +62,37 @@ export function UploadLeadsDialog({ open, onOpenChange }: UploadLeadsDialogProps
           return;
         }
 
-        const leads: ParsedLead[] = rows.map((row) => {
-          const get = (keys: string[]) => {
-            for (const k of keys) {
-              const val = row[k] ?? row[k.toLowerCase()] ?? row[k.toUpperCase()];
-              if (val !== undefined && val !== null && String(val).trim()) return String(val).trim();
+        // Build a case-insensitive header lookup from the first row's keys
+        const headerKeys = rows.length > 0 ? Object.keys(rows[0]) : [];
+        const findHeader = (patterns: string[]): string | null => {
+          for (const key of headerKeys) {
+            const lower = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+            for (const p of patterns) {
+              if (lower === p || lower.includes(p)) return key;
             }
-            return null;
+          }
+          return null;
+        };
+
+        const nameCol = findHeader(["name", "fullname", "leadname", "studentname"]);
+        const phoneCol = findHeader(["mobile", "phone", "contact", "mobileno", "phoneno", "mobilenumber", "phonenumber", "contactnumber", "cell"]);
+        const emailCol = findHeader(["email", "emailid", "emailaddress", "mail"]);
+        const addressCol = findHeader(["address", "location", "city", "addr"]);
+
+        const leads: ParsedLead[] = rows.map((row) => {
+          const getValue = (col: string | null) => {
+            if (!col) return null;
+            const val = row[col];
+            if (val === undefined || val === null) return null;
+            const str = String(val).trim();
+            return str || null;
           };
 
           return {
-            name: get(["Name", "name", "Full Name", "full_name"]) || "Unknown",
-            phone: get(["Mobile Number", "mobile_number", "Phone", "phone", "Mobile", "mobile", "Contact Number"]),
-            email: get(["Email ID", "email_id", "Email", "email", "Email Address", "email_address"]),
-            address: get(["Address", "address", "Location", "location"]),
+            name: getValue(nameCol) || "Unknown",
+            phone: getValue(phoneCol),
+            email: getValue(emailCol),
+            address: getValue(addressCol),
           };
         });
 

@@ -93,8 +93,11 @@ export function UpcomingMeetingsWidget() {
                       className="h-7 text-xs gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const link = meeting.meeting_link || meeting.location;
-                        if (link) window.open(link, "_blank", "noopener,noreferrer");
+                        let link = meeting.meeting_link || meeting.location;
+                        if (link) {
+                          if (!/^https?:\/\//i.test(link)) link = "https://" + link;
+                          window.open(link, "_blank", "noopener,noreferrer");
+                        }
                       }}
                     >
                       <ExternalLink className="h-3 w-3" />

@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { CalendarPlus, Clock, MapPin, Video } from "lucide-react";
+import { CalendarPlus, Clock, ExternalLink, MapPin, Video } from "lucide-react";
 import { useUpcomingMeetings } from "@/hooks/useMeetings";
 import { ScheduleMeetingDialog } from "./ScheduleMeetingDialog";
 import { useAuth } from "@/contexts/AuthContext";
@@ -82,9 +82,26 @@ export function UpcomingMeetingsWidget() {
                     </p>
                   )}
                 </div>
-                <Badge variant="outline" className="shrink-0 text-xs">
-                  {formatDistanceToNow(new Date(meeting.start_time), { addSuffix: true })}
-                </Badge>
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  <Badge variant="outline" className="text-xs">
+                    {formatDistanceToNow(new Date(meeting.start_time), { addSuffix: true })}
+                  </Badge>
+                  {(meeting.meeting_link || (meeting.location && /^https?:\/\//i.test(meeting.location))) && (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="h-7 text-xs gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const link = meeting.meeting_link || meeting.location;
+                        if (link) window.open(link, "_blank", "noopener,noreferrer");
+                      }}
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      Join
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

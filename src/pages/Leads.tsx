@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Search, Filter, UserPlus } from "lucide-react";
+import { Plus, Search, Filter, UserPlus, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { useLeads } from "@/hooks/useLeads";
 import { useAuth } from "@/contexts/AuthContext";

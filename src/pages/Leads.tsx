@@ -205,6 +205,10 @@ export default function Leads() {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
       />
+      <UploadLeadsDialog
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
+      />
     </div>
   );
 }

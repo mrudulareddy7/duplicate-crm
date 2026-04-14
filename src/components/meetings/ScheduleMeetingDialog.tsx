@@ -41,6 +41,7 @@ export function ScheduleMeetingDialog({
     duration: "30",
     location: "",
   });
+  const [locationType, setLocationType] = useState<"offline" | "online">("offline");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   function handleChange(

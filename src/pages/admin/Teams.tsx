@@ -65,11 +65,7 @@ export default function AdminTeams() {
       }
     } catch (error) {
       console.error("Error fetching teams:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load teams",
-        variant: "destructive",
-      });
+      setTeams([]);
     } finally {
       setLoading(false);
     }

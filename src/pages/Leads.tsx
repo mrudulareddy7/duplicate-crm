@@ -25,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
+import { UploadLeadsDialog } from "@/components/leads/UploadLeadsDialog";
+import { LEAD_SOURCES, LEAD_STATUSES, type LeadStatus, type LeadSource } from "@/types/leads";
 import { LEAD_SOURCES, LEAD_STATUSES, type LeadStatus, type LeadSource } from "@/types/leads";
 
 export default function Leads() {
@@ -35,6 +37,7 @@ export default function Leads() {
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
   const [sourceFilter, setSourceFilter] = useState<LeadSource | "all">("all");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
@@ -58,10 +61,16 @@ export default function Leads() {
           </p>
         </div>
         {canCreateLead && (
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Lead
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setUploadDialogOpen(true)}>
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Excel
+            </Button>
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Lead
+            </Button>
+          </div>
         )}
       </div>
 

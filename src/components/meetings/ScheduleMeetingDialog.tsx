@@ -88,6 +88,7 @@ export function ScheduleMeetingDialog({
       duration: "30",
       location: "",
     });
+    setLocationType("offline");
     setSelectedUsers([]);
     setLoading(false);
     setOpen(false);

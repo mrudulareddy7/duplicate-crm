@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CalendarPlus } from "lucide-react";
 import { useMeetings, useProfiles } from "@/hooks/useMeetings";
 
@@ -41,6 +42,7 @@ export function ScheduleMeetingDialog({
     duration: "30",
     location: "",
   });
+  const [locationType, setLocationType] = useState<"offline" | "online">("offline");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   function handleChange(
@@ -87,6 +89,7 @@ export function ScheduleMeetingDialog({
       duration: "30",
       location: "",
     });
+    setLocationType("offline");
     setSelectedUsers([]);
     setLoading(false);
     setOpen(false);
@@ -193,13 +196,34 @@ export function ScheduleMeetingDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label>Location</Label>
+            <RadioGroup
+              value={locationType}
+              onValueChange={(val) => {
+                setLocationType(val as "offline" | "online");
+                setFormData((prev) => ({ ...prev, location: "" }));
+              }}
+              className="flex gap-4"
+            >
+              <label className="flex items-center gap-2 cursor-pointer">
+                <RadioGroupItem value="offline" />
+                <span className="text-sm">Offline</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <RadioGroupItem value="online" />
+                <span className="text-sm">Online</span>
+              </label>
+            </RadioGroup>
             <Input
-              id="location"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="Office, Google Meet, etc."
+              placeholder={
+                locationType === "offline"
+                  ? "Enter meeting location / description"
+                  : "Enter Google Meet link"
+              }
+              required
             />
           </div>
 

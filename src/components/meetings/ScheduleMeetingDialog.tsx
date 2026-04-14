@@ -68,6 +68,8 @@ export function ScheduleMeetingDialog({
     const durationMs = parseInt(formData.duration) * 60 * 1000;
     const endDateTime = new Date(startDateTime.getTime() + durationMs);
 
+    const isOnline = locationType === "online";
+
     await createMeeting({
       title: formData.title,
       description: formData.description || undefined,
@@ -75,7 +77,8 @@ export function ScheduleMeetingDialog({
       end_time: endDateTime.toISOString(),
       duration_minutes: parseInt(formData.duration),
       attendees: selectedUsers,
-      location: formData.location || undefined,
+      location: isOnline ? "Online" : (formData.location || undefined),
+      meeting_link: isOnline ? formData.location : undefined,
       lead_id: leadId,
       contact_id: contactId,
       deal_id: dealId,

@@ -29,6 +29,8 @@ export interface CreateMeetingData {
   duration_minutes?: number;
   attendees?: string[];
   location?: string;
+  meeting_link?: string;
+  location?: string;
   lead_id?: string;
   contact_id?: string;
   deal_id?: string;

@@ -35,7 +35,7 @@ export function useAnalytics(dateRange?: { start: string; end: string }) {
           leadsQuery = leadsQuery.gte("created_at", dateRange.start);
         }
         if (dateRange?.end) {
-          leadsQuery = leadsQuery.lte("created_at", dateRange.end);
+          leadsQuery = leadsQuery.lte("created_at", dateRange.end + "T23:59:59.999Z");
         }
         const { data: leads } = await leadsQuery;
 
@@ -45,7 +45,7 @@ export function useAnalytics(dateRange?: { start: string; end: string }) {
           contactsQuery = contactsQuery.gte("created_at", dateRange.start);
         }
         if (dateRange?.end) {
-          contactsQuery = contactsQuery.lte("created_at", dateRange.end);
+          contactsQuery = contactsQuery.lte("created_at", dateRange.end + "T23:59:59.999Z");
         }
         const { count: totalContacts } = await contactsQuery;
 
@@ -55,7 +55,7 @@ export function useAnalytics(dateRange?: { start: string; end: string }) {
           dealsQuery = dealsQuery.gte("created_at", dateRange.start);
         }
         if (dateRange?.end) {
-          dealsQuery = dealsQuery.lte("created_at", dateRange.end);
+          dealsQuery = dealsQuery.lte("created_at", dateRange.end + "T23:59:59.999Z");
         }
         const { data: deals } = await dealsQuery;
 

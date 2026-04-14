@@ -640,6 +640,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          address: string | null
           converted_to_contact_id: string | null
           created_at: string
           email: string | null
@@ -654,6 +655,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address?: string | null
           converted_to_contact_id?: string | null
           created_at?: string
           email?: string | null
@@ -668,6 +670,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string | null
           converted_to_contact_id?: string | null
           created_at?: string
           email?: string | null

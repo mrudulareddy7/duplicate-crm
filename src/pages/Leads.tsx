@@ -27,7 +27,6 @@ import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
 import { UploadLeadsDialog } from "@/components/leads/UploadLeadsDialog";
 import { LEAD_SOURCES, LEAD_STATUSES, type LeadStatus, type LeadSource } from "@/types/leads";
-import { LEAD_SOURCES, LEAD_STATUSES, type LeadStatus, type LeadSource } from "@/types/leads";
 
 export default function Leads() {
   const navigate = useNavigate();

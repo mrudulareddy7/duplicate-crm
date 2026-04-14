@@ -58,6 +58,7 @@ export function useMeetings() {
         created_by: user.id,
         owner_id: user.id,
         attendees: data.attendees || [],
+        meeting_link: data.meeting_link || null,
       } as any);
 
       if (error) throw error;

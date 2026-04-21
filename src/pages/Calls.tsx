@@ -302,7 +302,11 @@ export default function Calls() {
                   return (
                     <TableRow key={call.id}>
                       <TableCell className="font-medium">{name}</TableCell>
-                      <TableCell>{phone}</TableCell>
+                      <TableCell>
+                        <a href={`tel:${phone}`} className="text-primary hover:underline">
+                          {phone}
+                        </a>
+                      </TableCell>
                       <TableCell>
                         {call.call_date
                           ? format(parseISO(call.call_date), "MMM d, yyyy h:mm a")

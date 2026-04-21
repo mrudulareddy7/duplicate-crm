@@ -1,0 +1,1 @@
+CREATE POLICY "Managers can delete leads" ON public.leads FOR DELETE USING (is_manager_or_above(auth.uid()));

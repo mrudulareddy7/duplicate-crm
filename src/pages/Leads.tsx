@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Search, Filter, UserPlus, Upload, Trash2 } from "lucide-react";
+import { Plus, Search, Filter, UserPlus, Upload, Trash2, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { useLeads } from "@/hooks/useLeads";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,6 +34,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
@@ -51,6 +57,7 @@ export default function Leads() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteAllConfirmOpen, setDeleteAllConfirmOpen] = useState(false);
 
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
@@ -104,6 +111,19 @@ export default function Leads() {
     }
   };
 
+  const handleConfirmDeleteAll = async () => {
+    const ids = leads.map((l) => l.id);
+    try {
+      await deleteLeads.mutateAsync(ids);
+      toast.success(`All ${ids.length} lead${ids.length > 1 ? "s" : ""} deleted`);
+      setSelectedIds(new Set());
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete leads");
+    } finally {
+      setDeleteAllConfirmOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -114,15 +134,40 @@ export default function Leads() {
           </p>
         </div>
         <div className="flex gap-2">
-          {canDeleteLeads && selectedIds.size > 0 && (
-            <Button
-              variant="destructive"
-              onClick={() => setDeleteConfirmOpen(true)}
-              disabled={deleteLeads.isPending}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete ({selectedIds.size})
-            </Button>
+          {canDeleteLeads && (
+            <div className="flex items-center">
+              <Button
+                variant="destructive"
+                onClick={() => setDeleteConfirmOpen(true)}
+                disabled={deleteLeads.isPending || selectedIds.size === 0}
+                className="rounded-r-none"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Selected{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    disabled={deleteLeads.isPending}
+                    className="rounded-l-none border-l border-destructive-foreground/20 px-2"
+                    aria-label="More delete options"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setDeleteAllConfirmOpen(true)}
+                    disabled={leads.length === 0}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete All ({leads.length})
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           )}
           {canCreateLead && (
             <>
@@ -311,6 +356,27 @@ export default function Leads() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteAllConfirmOpen} onOpenChange={setDeleteAllConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete ALL leads?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete ALL {leads.length} lead
+              {leads.length > 1 ? "s" : ""}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDeleteAll}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete All
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

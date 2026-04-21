@@ -195,7 +195,7 @@ export default function Leads() {
               {canDeleteLeads && (
                 <TableHead className="w-[40px]">
                   <Checkbox
-                    checked={allVisibleSelected || (someVisibleSelected && "indeterminate")}
+                    checked={allVisibleSelected ? true : someVisibleSelected ? "indeterminate" : false}
                     onCheckedChange={toggleSelectAll}
                     aria-label="Select all leads"
                   />

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Search, Filter, UserPlus, Upload } from "lucide-react";
+import { Plus, Search, Filter, UserPlus, Upload, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useLeads } from "@/hooks/useLeads";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -21,6 +23,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
@@ -31,12 +43,14 @@ import { LEAD_SOURCES, LEAD_STATUSES, type LeadStatus, type LeadSource } from "@
 export default function Leads() {
   const navigate = useNavigate();
   const { isAdmin, isManager } = useAuth();
-  const { leads, isLoading } = useLeads();
+  const { leads, isLoading, deleteLeads } = useLeads();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
   const [sourceFilter, setSourceFilter] = useState<LeadSource | "all">("all");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
@@ -49,6 +63,46 @@ export default function Leads() {
   });
 
   const canCreateLead = isAdmin || isManager;
+  const canDeleteLeads = isAdmin || isManager;
+
+  const allVisibleSelected =
+    filteredLeads.length > 0 && filteredLeads.every((l) => selectedIds.has(l.id));
+  const someVisibleSelected =
+    filteredLeads.some((l) => selectedIds.has(l.id)) && !allVisibleSelected;
+
+  const toggleSelectAll = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        filteredLeads.forEach((l) => next.delete(l.id));
+      } else {
+        filteredLeads.forEach((l) => next.add(l.id));
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    const ids = Array.from(selectedIds);
+    try {
+      await deleteLeads.mutateAsync(ids);
+      toast.success(`${ids.length} lead${ids.length > 1 ? "s" : ""} deleted`);
+      setSelectedIds(new Set());
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete leads");
+    } finally {
+      setDeleteConfirmOpen(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -59,18 +113,30 @@ export default function Leads() {
             Manage and track your sales leads
           </p>
         </div>
-        {canCreateLead && (
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setUploadDialogOpen(true)}>
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Excel
+        <div className="flex gap-2">
+          {canDeleteLeads && selectedIds.size > 0 && (
+            <Button
+              variant="destructive"
+              onClick={() => setDeleteConfirmOpen(true)}
+              disabled={deleteLeads.isPending}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete ({selectedIds.size})
             </Button>
-            <Button onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Lead
-            </Button>
-          </div>
-        )}
+          )}
+          {canCreateLead && (
+            <>
+              <Button variant="outline" onClick={() => setUploadDialogOpen(true)}>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Excel
+              </Button>
+              <Button onClick={() => setCreateDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Lead
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -126,6 +192,15 @@ export default function Leads() {
         <Table>
           <TableHeader>
             <TableRow>
+              {canDeleteLeads && (
+                <TableHead className="w-[40px]">
+                  <Checkbox
+                    checked={allVisibleSelected ? true : someVisibleSelected ? "indeterminate" : false}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="Select all leads"
+                  />
+                </TableHead>
+              )}
               <TableHead>Name</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Source</TableHead>
@@ -138,6 +213,7 @@ export default function Leads() {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
+                  {canDeleteLeads && <TableCell><Skeleton className="h-4 w-4" /></TableCell>}
                   <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-40" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-20" /></TableCell>
@@ -148,7 +224,7 @@ export default function Leads() {
               ))
             ) : filteredLeads.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-12 text-center">
+                <TableCell colSpan={canDeleteLeads ? 7 : 6} className="py-12 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <UserPlus className="h-8 w-8 text-muted-foreground" />
                     <p className="text-muted-foreground">No leads found</p>
@@ -171,6 +247,15 @@ export default function Leads() {
                   className="cursor-pointer hover:bg-muted/50"
                   onClick={() => navigate(`/leads/${lead.id}`)}
                 >
+                  {canDeleteLeads && (
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.has(lead.id)}
+                        onCheckedChange={() => toggleSelectOne(lead.id)}
+                        aria-label={`Select ${lead.name}`}
+                      />
+                    </TableCell>
+                  )}
                   <TableCell className="font-medium">{lead.name}</TableCell>
                   <TableCell>
                     <div className="flex flex-col text-sm">
@@ -209,6 +294,27 @@ export default function Leads() {
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
       />
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete selected leads?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.size} selected lead
+              {selectedIds.size > 1 ? "s" : ""}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

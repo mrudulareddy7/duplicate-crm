@@ -185,6 +185,28 @@ export function useLeads() {
     },
   });
 
+  const deleteLeads = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("leads").delete().in("id", ids);
+      if (error) throw error;
+
+      await Promise.all(
+        ids.map((id) =>
+          logAudit({
+            action: "lead.delete",
+            entityType: "lead",
+            entityId: id,
+          })
+        )
+      );
+
+      return ids;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    },
+  });
+
   return {
     leads: leadsQuery.data || [],
     isLoading: leadsQuery.isLoading,
@@ -193,6 +215,7 @@ export function useLeads() {
     updateLead,
     updateLeadStatus,
     reassignLead,
+    deleteLeads,
   };
 }
 

@@ -7,12 +7,14 @@ import { FloatingScheduleButton } from "@/components/meetings/FloatingScheduleBu
 export function AppLayout() {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full overflow-x-hidden">
         <AppSidebar />
-        <SidebarInset className="flex flex-1 flex-col">
+        <SidebarInset className="flex flex-1 flex-col min-w-0">
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <Outlet />
+          <main className="flex-1 overflow-auto p-6 min-w-0 max-w-full">
+            <div className="min-w-0 max-w-full">
+              <Outlet />
+            </div>
           </main>
         </SidebarInset>
         <FloatingScheduleButton />
